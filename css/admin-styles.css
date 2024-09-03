@@ -1,0 +1,102 @@
+/* Admin-Specific Styles */
+#wp_comics_meta_box {
+    width: 100%;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.wp-comics-field {
+    margin-bottom: 15px;
+}
+
+.wp-comics-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.wp-comics-field input[type="text"],
+.wp-comics-field input[type="number"],
+.wp-comics-field input[type="hidden"],
+.wp-comics-field select {
+    width: 100%;
+}
+
+.wp-comics-field input[type="number"] {
+    width: 80px;
+}
+
+.wp-comics-field select {
+    width: auto;
+}
+
+.wp-comics-field img {
+    max-width: 100%;
+    height: auto;
+}
+
+.wp-comics-field .button {
+    margin-top: 5px;
+}
+
+.wp-comics-field .editor-container,
+.wp-comics-field .wp-editor-container {
+    margin-top: 15px;
+}
+
+#wp_comics_limited_number,
+#wp_comics_limited_total {
+    width: 100px;
+}
+
+
+
+/* Container für die Meta-Box */
+#wp_comics_meta_box {
+    border: 2px solid #00f; /* Blauer Rahmen um die gesamte Meta-Box */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Wrapper-Div für den Inhalt der Meta-Box */
+.wp-comics-meta-box-wrapper {
+    width: 100%; /* Breite auf 100% belassen */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Zweispaltiges Layout */
+    gap: 20px;
+}
+
+/* Stil für jedes einzelne Feld */
+.wp-comics-field {
+    padding: 10px;
+    border: 1px dotted red; /* Roter, gepunkteter Rand um jedes Feld */
+    box-sizing: border-box;
+}
+
+/* Beschreibung außerhalb des Layouts */
+.wp-comics-description-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px dotted red; /* Roter, gepunkteter Rand um das Beschreibungsfeld */
+    box-sizing: border-box;
+    margin-top: 20px; /* Abstand nach oben */
+}
+
+/* Verlag und Autoren-Felder breiter machen */
+#wp_comics_publisher, /* Verlag */
+#wp_comics_authors {  /* Autoren */
+    width: 450px !important; /* Feste Breite von 450 Pixel */
+    box-sizing: border-box;
+}
+
+.wp-comics-field-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.wp-comics-field-group .wp-comics-field {
+    flex: 1;
+}
