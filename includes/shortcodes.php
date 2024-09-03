@@ -1,8 +1,6 @@
 <?php
 
-
-
-// SHORTCODE
+// SHORTCODE für die Comic-Card
 function wp_comics_shortcode($atts) {
     // Standardwerte für Shortcode-Attribute
     $atts = shortcode_atts(array(
@@ -209,13 +207,7 @@ function wp_comics_shortcode($atts) {
 add_shortcode('wp_comics', 'wp_comics_shortcode');
 
 
-
-
-
-
-
-
-// Shortcode für kompakte Comic-Ansicht
+// Shortcode für Compact-Card
 function wp_comics_compact_shortcode($atts) {
     global $wpdb;
 
@@ -308,22 +300,6 @@ function wp_comics_compact_shortcode($atts) {
     return $output;
 }
 add_shortcode('wp_comics_compact', 'wp_comics_compact_shortcode');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

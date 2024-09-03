@@ -1,5 +1,5 @@
 <?php
-// Registrierung der Design-Einstellungen
+
 add_action('admin_init', 'wp_comics_register_design_settings');
 
 function wp_comics_register_design_settings() {

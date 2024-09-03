@@ -117,12 +117,12 @@ function wp_comics_settings_page() {
         });
     </script>
 
-
     <style>
         .tab-content { display: none; }
         .tab-content.active { display: block; }
     </style>
 
+    // Folgendes Script wurde nicht ausgelagert, weil es aus irgendeinen mir unbekannten Grund dann nicht mehr funktionierte...
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const tabs = document.querySelectorAll('.nav-tab');
@@ -269,8 +269,6 @@ function wp_comics_register_settings() {
     register_setting('wp_comics_options_group', 'wp_comics_options', 'sanitize_callback_function');
 }
 
-
-
 // Allgemeine Einstellungen - Callback-Funktionen
 function wp_comics_display_options_callback() {
     $options = get_option('wp_comics_options');
@@ -327,7 +325,6 @@ function wp_comics_display_limited_overlay_callback() {
     </select>
     <?php
 }
-
 
 
 // Callback-Funktion für die maximale Breite der Comic-Card

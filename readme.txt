@@ -8,7 +8,7 @@ Stable tag: 1.3.1
 License: GPL-3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Ein einfaches Plugin, um Comics auf deiner WordPress-Seite zu verwalten und anzuzeigen.
+Ein WordPress-Plugin, um Comics auf WordPress-Seiten zu verwalten und anzuzeigen.
 
 == Beschreibung ==
 
@@ -17,7 +17,7 @@ Das *Heropanel Plugin* ermöglicht es dir, eine Sammlung von Comics auf deiner W
 * Comic-Cover-Bilder hochladen und verwalten.
 * Comic-Metadaten wie Titel, Autoren, Genres und mehr bearbeiten.
 * Limitierte Comic-Ausgaben verwalten.
-* Kompakte oder detaillierte Comic-Karten im Frontend anzeigen.
+* Kompakte oder detaillierte Comic-Karten sowie Tabellen im Frontend anzeigen.
 
 Das Plugin ist einfach zu bedienen und bietet alle nötigen Funktionen, um eine Online-Comic-Bibliothek zu erstellen.
 Bevor du dieses Plugin bewertest, würde ich mich sehr über eine Rückmeldung freuen. Schreibe doch bitte gerne eine E-Mail an sasmoell@t-online.de - Ich bin auf Rückmeldung angewiesen und sehr dankbar dafür.
@@ -25,30 +25,37 @@ Bevor du dieses Plugin bewertest, würde ich mich sehr über eine Rückmeldung f
 
 == Installation ==
 
-1. Lade das Plugin-Verzeichnis in dein `/wp-content/plugins/`-Verzeichnis hoch oder installiere es direkt über das WordPress-Plugin-Verzeichnis.
+1. Lade das Plugin-Verzeichnis in dein `/wp-content/plugins/`-Verzeichnis hoch oder installiere es direkt über das WordPress-Plugin-Verzeichnis (noch in Revision).
 2. Aktiviere das Plugin über das 'Plugins'-Menü in WordPress.
 3. Nach der Aktivierung findest du das "Comics" Menü in deinem WordPress-Dashboard, wo du neue Comics hinzufügen und verwalten kannst.
-
-== Screenshots ==
-
-1. **Admin-Panel**: Benutzerfreundliche Oberfläche zum Hinzufügen und Verwalten von Comics.
-2. **Comic-Karten im Frontend**: Stilvolle Darstellung deiner Comics im Grid-Layout.
-3. **Metabox für Comics**: Erweitertes Eingabeformular für Comic-Metadaten.
 
 == Changelog ==
 
 = 1.3.1 =
 
-* Einstellungen wurden in Tabs organisiert
+* Einstellungen wurden in Tabs organisiert.
 * Verbesserte Tabs: Die Tabs bleiben nach dem Speichern der Änderungen aktiv.
 * Erfolgsmeldung nach dem Speichern der Einstellungen hinzugefügt.
+* Button für Standardeinstellungen wurde hinzugefügt.
 * Verschiedene kleinere Bugfixes und Verbesserungen der Benutzeroberfläche.
 * Neue Option: Benutzer kann zwischen Pixel und Prozent bei der Angabe der Card-Breite wählen.
 * Comic-Card: Hintergrund-, Text- und Titelfarbe kann per Color-Picker eingestellt werden.
-* Button für Standardeinstellungen wurde hinzugefügt.
+* Comic-Card: Neues Attribut im Shortcode verfügbar (pagination=“true“) für Paginierung (Docs beachten).
+* Comic-Card: Neues Attribut im Shortcode verfügbar (layout=“grid“) für Grid-Layout.
+* Comic-Card: Neues Attribut im Shortcode verfügbar (columns=“2″) für mehrspaltiges Layout.
 * Verfügbare Shortcodes erweitert. Comics lassen sich jetzt auch als Tabelle ausgeben.
-* HeroPanel Docs in Dokumentation verlinkt. Zeigt auf SpiderComics.de.
+* Import/Export via CSV (optional mit Cover).
+* Es erscheint eine Banderole auf dem Cover, wenn das Comic als Limitiert gekennzeichnet wurde. Kann unter dem Design-Tab deaktiviert werden.
+* Neue Metadaten: Ausgabe-Typ (Regular/Variant).
+* Verlage können nun auch nachträglich bearbeitet werden.
+* Es ist nun möglich, auch Serien zu erfassen, um es von Genres besser abzugrenzen.
+* In der Comic-Übersicht kann nun nach Serien und Verlagen gefiltert werden.
+* In der Comic-Übersicht kann jetzt nach Genre gefiltert werden.
+* In der Compact-Card wird nun statt des Genres die Serie ausgegeben.
+* In der Comic-Card wird neben dem Genre die Serie ausgegeben.
+* Im Comic-Table wurde die Spalte Serie hinzugefügt.
 * Aktuelle News werden als RSS-Feed angezeigt.
+* HeroPanel Docs in Dokumentation verlinkt. Zeigt auf SpiderComics.de.
 
 = 1.3.0 =
 * Erstveröffentlichung des Plugins.

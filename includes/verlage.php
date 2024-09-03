@@ -134,6 +134,7 @@ function wp_comics_verlage_page() {
     <?php
 }
 
+
 function wp_comics_create_verlage_table() {
     global $wpdb;
 
