@@ -1,6 +1,6 @@
 <?php
 
-// SHORTCODE für die Comic-Card
+// SHORTCODE
 function wp_comics_shortcode($atts) {
     // Standardwerte für Shortcode-Attribute
     $atts = shortcode_atts(array(
@@ -12,6 +12,7 @@ function wp_comics_shortcode($atts) {
         'year' => '',
         'publisher' => '',
         'format' => '',
+        'series' => '',
         'columns' => 1, // Anzahl der Spalten
         'layout' => 'grid', // Layout-Option: grid oder list
         'paged' => get_query_var('paged', 1), // Holt den Wert von 'paged' aus der URL oder verwendet 1 als Standardwert
@@ -31,6 +32,15 @@ function wp_comics_shortcode($atts) {
     if (!empty($atts['id'])) {
         $args['p'] = intval($atts['id']);
         $args['posts_per_page'] = 1;
+    }
+    
+    // Filterung nach Serie
+    if (!empty($atts['series'])) {
+        $args['meta_query'][] = array(
+            'key' => '_wp_comics_series',
+            'value' => sanitize_text_field($atts['series']),
+            'compare' => '='
+        );
     }
 
     // Filterung nach Genre
@@ -207,7 +217,8 @@ function wp_comics_shortcode($atts) {
 add_shortcode('wp_comics', 'wp_comics_shortcode');
 
 
-// Shortcode für Compact-Card
+
+// Shortcode für kompakte Comic-Ansicht
 function wp_comics_compact_shortcode($atts) {
     global $wpdb;
 
@@ -220,6 +231,7 @@ function wp_comics_compact_shortcode($atts) {
         'year' => '',
         'publisher' => '',
         'format' => '',
+        'series' => '',
     ), $atts, 'wp_comics_compact');
 
     $args = array(
@@ -263,6 +275,15 @@ function wp_comics_compact_shortcode($atts) {
             'value' => sanitize_text_field($atts['format']),
         );
     }
+    
+    // Filterung nach Serie
+    if (!empty($atts['series'])) {
+        $args['meta_query'][] = array(
+            'key' => '_wp_comics_series',
+            'value' => sanitize_text_field($atts['series']),
+            'compare' => '='
+        );
+    }
 
     $query = new WP_Query($args);
 
@@ -302,7 +323,6 @@ function wp_comics_compact_shortcode($atts) {
 add_shortcode('wp_comics_compact', 'wp_comics_compact_shortcode');
 
 
-
 // Shortcode für Comic-Tabelle
 function wp_comics_table_shortcode($atts) {
     $atts = shortcode_atts(array(
@@ -312,6 +332,7 @@ function wp_comics_table_shortcode($atts) {
         'genre' => '',
         'year' => '',
         'publisher' => '',
+        'series' => '',
     ), $atts, 'wp_comics_table');
 
     $args = array(
@@ -344,6 +365,15 @@ function wp_comics_table_shortcode($atts) {
         $args['meta_query'][] = array(
             'key' => '_wp_comics_publisher',
             'value' => sanitize_text_field($atts['publisher']),
+            'compare' => '='
+        );
+    }
+    
+    // Filterung nach Serie
+    if (!empty($atts['series'])) {
+        $args['meta_query'][] = array(
+            'key' => '_wp_comics_series',
+            'value' => sanitize_text_field($atts['series']),
             'compare' => '='
         );
     }
