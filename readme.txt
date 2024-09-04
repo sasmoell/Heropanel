@@ -30,6 +30,7 @@ Bevor du dieses Plugin bewertest, würde ich mich sehr über eine Rückmeldung f
 3. Nach der Aktivierung findest du das "Comics" Menü in deinem WordPress-Dashboard, wo du neue Comics hinzufügen und verwalten kannst.
 
 == Changelog ==
+
 = 1.3.2 =
 
 * Es kann jetzt auch nach Serien gefiltert werden. Im Shortcode ist der Parameter "series" nun verfügbar. Er wird mit der ID der Serie erweitert. Beispiel: [wp_comics series="4"] zeigt Comics der Serie mit der ID 4 an.
