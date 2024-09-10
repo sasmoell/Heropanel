@@ -30,7 +30,7 @@
 .wp-comic-card {
     display: flex;
     flex-direction: row;
-    overflow: hidden; /* Overflow auf 'visible' setzen, damit das Bild nicht abgeschnitten wird */
+    overflow: hidden;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
@@ -40,7 +40,7 @@
     object-fit: contain;
     height: 100%;
     width: auto;
-    display: block; /* Entfernt eventuell unerwünschten Abstand */
+    display: block;
 }
 
 
@@ -49,8 +49,8 @@
     padding: 15px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Ausrichtung nach oben */
-    margin-top: 5px; /* Abstand von oben */
+    justify-content: flex-start; 
+    margin-top: 5px;
     width: 100%;
 }
 
@@ -58,13 +58,13 @@
     font-size: 1.5em;
     margin-bottom: 10px;
     color: #333;
-    margin-top: 0; /* Sicherstellen, dass kein zusätzlicher Abstand oben ist */
+    margin-top: 0;
 }
 
 .wp-comic-meta {
-    font-size: 0.9em; /* Kleinere Schriftgröße für Metadaten */
+    font-size: 0.9em;
     color: #555;
-    margin-top: 5px; /* Abstand von oben */
+    margin-top: 5px;
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
@@ -185,4 +185,55 @@
 
 .wp-comics-compact-series {
     margin-bottom: 15px;
+}
+
+
+/* Styles für die Comic-Metadaten */
+.comic-metadata {
+    padding: 20px;
+    margin-bottom: 30px;
+    font-family: Arial, sans-serif
+}
+
+.comic-metadata h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.comic-metadata p {
+    font-size: 16px;
+}
+
+.comic-metadata .comic-cover img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.comic-description {
+    font-size: 14px;
+    margin-top: 15px;
+    padding: 10px;
+    border-left: 4px solid #0073aa;
+}
+
+.comic-metadata p span {
+    font-weight: bold;
+    color: #0073aa;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+    .comic-metadata {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .comic-metadata h2 {
+        font-size: 24px;
+    }
+
+    .comic-metadata p {
+        font-size: 14px;
+    }
 }

@@ -55,7 +55,6 @@
 
 /* Container für die Meta-Box */
 #wp_comics_meta_box {
-    border: 2px solid #00f; /* Blauer Rahmen um die gesamte Meta-Box */
     padding: 20px;
     box-sizing: border-box;
 }
@@ -71,7 +70,7 @@
 /* Stil für jedes einzelne Feld */
 .wp-comics-field {
     padding: 10px;
-    border: 1px dotted red; /* Roter, gepunkteter Rand um jedes Feld */
+    border: 1px dotted black;
     box-sizing: border-box;
 }
 
@@ -79,7 +78,7 @@
 .wp-comics-description-field {
     width: 100%;
     padding: 10px;
-    border: 1px dotted red; /* Roter, gepunkteter Rand um das Beschreibungsfeld */
+    border: 1px dotted black;
     box-sizing: border-box;
     margin-top: 20px; /* Abstand nach oben */
 }

@@ -1,4 +1,8 @@
 <?php
+
+
+if (!defined('ABSPATH')) {exit;}
+
 // Verlage-Verwaltungsseite
 function wp_comics_verlage_page() {
     global $wpdb;
@@ -133,7 +137,6 @@ function wp_comics_verlage_page() {
     </div>
     <?php
 }
-
 
 function wp_comics_create_verlage_table() {
     global $wpdb;

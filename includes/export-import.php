@@ -1,9 +1,14 @@
 <?php
 
+if (!defined('ABSPATH')) {exit;}
+
+// Export-Logik registrieren
 add_action('admin_init', 'wp_comics_export_data');
+
+// Import-Logik registrieren
 add_action('admin_init', 'wp_comics_import_data');
 
-// Export-Formular
+// Export-Formular anzeigen
 function wp_comics_export_form() {
     ?>
     <div class="wrap">
@@ -73,15 +78,16 @@ function wp_comics_export_data() {
 
         $query = new WP_Query($args);
         $comics = array();
-        // Description aus den Metadaten muss von Kommata und Tags bereinigt werden, da sonst die Export-CSV fehlerhaft ist.
+
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
+                // Beschreibung säubern und in Anführungszeichen setzen
                 $description = get_post_meta(get_the_ID(), '_wp_comics_description', true);
-                $clean_description = wp_strip_all_tags($description); 
-                $clean_description = preg_replace('/\s+/', ' ', $clean_description); 
-                $clean_description = trim($clean_description); 
-                $clean_description = '"' . str_replace('"', '""', $clean_description) . '"';
+                $clean_description = wp_strip_all_tags($description); // HTML-Tags entfernen
+                $clean_description = preg_replace('/\s+/', ' ', $clean_description); // Mehrfache Leerzeichen durch ein einzelnes Leerzeichen ersetzen
+                $clean_description = trim($clean_description); // Leerzeichen am Anfang und Ende entfernen
+                $clean_description = '"' . str_replace('"', '""', $clean_description) . '"'; // Anführungszeichen um die Beschreibung und doppelte Anführungszeichen innerhalb der Beschreibung
 
                 $comic_data = array(
                     'title' => get_the_title(),
@@ -90,7 +96,7 @@ function wp_comics_export_data() {
                     'publication_year' => get_post_meta(get_the_ID(), '_wp_comics_publication_year', true),
                     'format' => get_post_meta(get_the_ID(), '_wp_comics_format', true),
                     'page_count' => get_post_meta(get_the_ID(), '_wp_comics_page_count', true),
-                    'description' => $clean_description,
+                    'description' => $clean_description, // Gesäuberte und korrekt formatierte Beschreibung
                     'issue_type' => get_post_meta(get_the_ID(), '_wp_comics_issue_type', true),
                     'is_limited' => get_post_meta(get_the_ID(), '_wp_comics_is_limited', true),
                     'limited_number' => get_post_meta(get_the_ID(), '_wp_comics_limited_number', true),
@@ -123,7 +129,7 @@ function wp_comics_export_data() {
                 $comic['publication_year'],
                 $comic['format'],
                 $comic['page_count'],
-                $comic['description'],
+                $comic['description'], // Gesäuberte und korrekt formatierte Beschreibung
                 $comic['issue_type'],
                 $comic['is_limited'],
                 $comic['limited_number'],
@@ -183,6 +189,10 @@ function wp_comics_export_data() {
         exit;
     }
 }
+
+
+
+
 
 
 // Import-Logik

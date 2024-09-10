@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('ABSPATH')) {exit;}
+
 // Enqueue Scripts und Styles für den WordPress Color Picker
 function wp_comics_enqueue_color_picker($hook_suffix) {
     // Prüfen, ob wir uns auf der richtigen Einstellungsseite befinden
@@ -32,7 +34,7 @@ function wp_comics_settings_page() {
         <!-- Tabs Navigation -->
         <h2 class="nav-tab-wrapper">
             <a href="#tab-general" class="nav-tab nav-tab-active">Allgemeine Einstellungen</a>
-            <a href="#tab-design" class="nav-tab">Design</a>
+            <a href="#tab-design" class="nav-tab">Layout & Design</a>
             <a href="#tab-docs" class="nav-tab">Dokumentation</a>
         </h2>
 
@@ -105,7 +107,6 @@ function wp_comics_settings_page() {
                     const targetId = tab.getAttribute('href').substring(1);
                     document.getElementById(targetId).classList.add('active');
         
-                    // Aktuellen Tab in localStorage speichern
                     localStorage.setItem('activeTab', `#${targetId}`);
                 });
             });
@@ -117,59 +118,7 @@ function wp_comics_settings_page() {
         });
     </script>
 
-    <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-    </style>
-
-    // Folgendes Script wurde nicht ausgelagert, weil es aus irgendeinen mir unbekannten Grund dann nicht mehr funktionierte...
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tabs = document.querySelectorAll('.nav-tab');
-            const contents = document.querySelectorAll('.tab-content');
-            let activeTab = localStorage.getItem('activeTab') || '#tab-general';
-        
-            // Setze den aktiven Tab bei Seitenaufruf
-            tabs.forEach(tab => {
-                tab.classList.remove('nav-tab-active');
-                if (tab.getAttribute('href') === activeTab) {
-                    tab.classList.add('nav-tab-active');
-                }
-            });
-        
-            contents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === activeTab.substring(1)) {
-                    content.classList.add('active');
-                }
-            });
-        
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function (e) {
-                    e.preventDefault();
-        
-                    // Tabs aktivieren / deaktivieren
-                    tabs.forEach(item => item.classList.remove('nav-tab-active'));
-                    tab.classList.add('nav-tab-active');
-        
-                    // Inhalte anzeigen / verstecken
-                    contents.forEach(content => content.classList.remove('active'));
-                    const targetId = tab.getAttribute('href').substring(1);
-                    document.getElementById(targetId).classList.add('active');
-        
-                    // Aktuellen Tab in localStorage speichern
-                    localStorage.setItem('activeTab', #${targetId});
-                });
-            });
-
-            // Aktiviert den Color-Picker
-            jQuery(document).ready(function($) {
-                $('.wp-comics-color-picker').wpColorPicker();
-            });
-        });
-    </script>
-
-    <?php
+<?php
 }
 
 // Registrierung der Einstellungen
@@ -217,13 +166,21 @@ function wp_comics_register_settings() {
         'wp_comics_settings_section_design'
     );
 
-
     // Design-Einstellungen
     add_settings_section(
         'wp_comics_settings_section_design',
         'Design-Einstellungen',
         null,
         'wp_comics_settings_design'
+    );
+
+    // Spaltenauswahl für die Tabelle (Checkboxen)
+    add_settings_field(
+        'wp_comics_visible_columns',
+        'Sichtbare Spalten (Tabelle)',
+        'wp_comics_visible_columns_callback',
+        'wp_comics_settings_design',
+        'wp_comics_settings_section_design'
     );
 
     add_settings_field(
@@ -267,6 +224,29 @@ function wp_comics_register_settings() {
     );
 
     register_setting('wp_comics_options_group', 'wp_comics_options', 'sanitize_callback_function');
+}
+
+// Callback für die Spaltenauswahl
+function wp_comics_visible_columns_callback() {
+    $options = get_option('wp_comics_options');
+    $visible_columns = isset($options['wp_comics_visible_columns']) ? $options['wp_comics_visible_columns'] : array(
+        'title', 'publisher', 'series', 'year', 'format', 'pages', 'is_limited'
+    );
+    
+    $columns = array(
+        'title' => 'Titel',
+        'publisher' => 'Verlag',
+        'series' => 'Serie',
+        'year' => 'Erscheinungsjahr',
+        'format' => 'Format',
+        'pages' => 'Seitenanzahl',
+        'is_limited' => 'Limitierung'
+    );
+
+    foreach ($columns as $key => $label) {
+        $checked = in_array($key, $visible_columns) ? 'checked' : '';
+        echo "<label><input type='checkbox' name='wp_comics_options[wp_comics_visible_columns][]' value='$key' $checked /> $label</label><br>";
+    }
 }
 
 // Allgemeine Einstellungen - Callback-Funktionen
@@ -326,8 +306,7 @@ function wp_comics_display_limited_overlay_callback() {
     <?php
 }
 
-
-// Callback-Funktion für die maximale Breite der Comic-Card
+// Callback für die maximale Breite der Comic-Card
 function wp_comics_card_max_width_callback() {
     $options = get_option('wp_comics_options');
     $max_width = isset($options['wp_comics_card_max_width']) ? esc_attr($options['wp_comics_card_max_width']) : '100';
@@ -342,14 +321,14 @@ function wp_comics_card_max_width_callback() {
     <?php
 }
 
-// Callback-Funktion für die Titel-Schriftgröße
+// Callback für die Titel-Schriftgröße
 function wp_comics_font_size_callback() {
     $options = get_option('wp_comics_options');
     $font_size = isset($options['wp_comics_title_font_size']) ? esc_attr($options['wp_comics_title_font_size']) : '16px';
     echo "<input type='text' name='wp_comics_options[wp_comics_title_font_size]' value='" . esc_attr($font_size) . "' placeholder='z.B. 16px oder 1.5em' />";
 }
 
-// Callback-Funktionen für die Color-Picker Felder
+// Callback für die Color-Picker Felder
 function wp_comics_card_background_color_callback() {
     $options = get_option('wp_comics_options');
     $color = isset($options['wp_comics_card_background_color']) ? esc_attr($options['wp_comics_card_background_color']) : '#ffffff';
@@ -368,8 +347,7 @@ function wp_comics_card_title_color_callback() {
     echo '<input type="text" name="wp_comics_options[wp_comics_card_title_color]" value="' . esc_attr($color) . '" class="wp-comics-color-picker" />';
 }
 
-
-// Sanitize Callback-Funktion aktualisieren
+// Sanitize Callback-Funktion
 function sanitize_callback_function($input) {
     $sanitized_input = array();
 
@@ -385,10 +363,16 @@ function sanitize_callback_function($input) {
         $sanitized_input['wp_comics_display_options'] = array_map('sanitize_text_field', $input['wp_comics_display_options']);
     }
 
+    if (isset($input['wp_comics_visible_columns'])) {
+        $sanitized_input['wp_comics_visible_columns'] = array_map('sanitize_text_field', $input['wp_comics_visible_columns']);
+    }
+
+    // Hinzufügen von Sanitize für Beschreibung anzeigen
     if (isset($input['wp_comics_display_description'])) {
         $sanitized_input['wp_comics_display_description'] = sanitize_text_field($input['wp_comics_display_description']);
     }
 
+    // Hinzufügen von Sanitize für Limitierung anzeigen
     if (isset($input['wp_comics_display_limited'])) {
         $sanitized_input['wp_comics_display_limited'] = sanitize_text_field($input['wp_comics_display_limited']);
     }
@@ -416,20 +400,6 @@ function sanitize_callback_function($input) {
     return $sanitized_input;
 }
 
-// Dynamisches CSS für die Comic-Card basierend auf den Einstellungen
-add_action('wp_head', 'wp_comics_custom_css');
-function wp_comics_custom_css() {
-    $options = get_option('wp_comics_options');
-    $max_width = isset($options['wp_comics_card_max_width']) ? esc_attr($options['wp_comics_card_max_width']) : '100';
-    $unit = isset($options['wp_comics_card_max_width_unit']) ? esc_attr($options['wp_comics_card_max_width_unit']) : '%';
-
-    // Dynamisches CSS ausgeben
-    echo "<style>
-    .wp-comic-card {
-        max-width: " . esc_attr($max_width) . esc_attr($unit) . ";
-    }
-    </style>";
-}
 
 // Dynamische Anwendung der Benutzerfarben für die Comic-Cards
 add_action('wp_head', 'wp_comics_custom_colors');
@@ -462,9 +432,6 @@ function wp_comics_handle_reset_defaults() {
         if (!isset($_POST['wp_comics_reset_defaults_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wp_comics_reset_defaults_nonce'])), 'wp_comics_reset_defaults_action')) {
             wp_die('Sicherheitsüberprüfung fehlgeschlagen.');
         }
-
-        // Debugging: Überprüfen, ob die Funktion aufgerufen wird
-        error_log('Reset-Button wurde gedrückt.');
 
         // Die aktuellen Einstellungen abrufen, um die Allgemeinen Einstellungen beizubehalten
         $current_settings = get_option('wp_comics_options');

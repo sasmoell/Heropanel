@@ -1,11 +1,14 @@
 <?php
 
+if (!defined('ABSPATH')) {exit;}
+
+// Meta-Boxen hinzufügen
 function wp_comics_add_custom_meta_boxes() {
     add_meta_box('wp_comics_meta_box', 'Comic Details', 'wp_comics_meta_box_callback', 'comic', 'normal', 'high');
 }
 add_action('add_meta_boxes', 'wp_comics_add_custom_meta_boxes');
 
-// Meta-Box Callback
+// Meta-Box Callback anpassen
 function wp_comics_meta_box_callback($post) {
     wp_nonce_field('wp_comics_save_meta_box_data', 'wp_comics_meta_box_nonce');
 
@@ -22,15 +25,15 @@ function wp_comics_meta_box_callback($post) {
     }
     echo '</div></p>';
 
-    // Verlage aus der Datenbank
+    // Verlage aus der Datenbank abrufen
     global $wpdb;
     $verlage_table = $wpdb->prefix . 'comics_verlage';
     
-    // Cache-Key basierend auf der Tabelle
+    // Cache-Key basierend auf der Tabelle erstellen
     $cache_key = 'verlage_all_entries';
-    $cache_group = 'my_plugin_group'; 
+    $cache_group = 'my_plugin_group'; // Eine Cache-Gruppe zur Organisation
     
-    // Verlage aus dem Cache holen
+    // Versuche, die Verlage aus dem Cache zu holen
     $verlage = wp_cache_get($cache_key, $cache_group);
     
     if ($verlage === false) { // Wenn kein Cache vorhanden ist

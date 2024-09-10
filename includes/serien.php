@@ -1,8 +1,6 @@
 <?php
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) {exit;}
 
 // Serien hinzufügen
 function wp_comics_add_series($name, $start_year, $end_year, $publisher_id) {

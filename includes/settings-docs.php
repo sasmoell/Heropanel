@@ -1,6 +1,3 @@
-<?php
-// Inhalt für die Dokumentation
-?>
 
 <h2>Aktuelle News</h2>
 <?php

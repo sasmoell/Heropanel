@@ -1,17 +1,14 @@
 <?php
 
 /**
- * Plugin Name: Heropanel 1.3.1
+ * Plugin Name: Heropanel 1.4.0
  * Description: Verwalte und zeige Comics auf deiner WordPress-Website an.
- * Version: 1.3.1
+ * Version: 1.4.0
  * Author: Sascha Moeller <a href="https://ccmoeller.de">CCM</a> | powered by <a href="https://spidercomics.de">SpiderComics.de</a>
  * License: GPL-3.0
  */
 
-// Verhindert direkten Zugriff auf die Datei
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) {exit;}
 
 require_once plugin_dir_path(__FILE__) . 'includes/verlage.php';
 require_once plugin_dir_path(__FILE__) . 'includes/metaboxen.php';
@@ -19,7 +16,10 @@ require_once plugin_dir_path(__FILE__) . 'includes/export-import.php';
 require_once plugin_dir_path(__FILE__) . 'includes/shortcodes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/serien.php';
+require_once plugin_dir_path(__FILE__) . 'includes/qr-code.php';
 
+
+// Tabelle für Comic-Serien erstellen
 function wp_comics_create_series_table() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'comic_series';
@@ -47,6 +47,7 @@ function wp_comics_activate() {
 register_activation_hook(__FILE__, 'wp_comics_activate');
 
 
+// Enqueue Scripts and Styles für Frontend
 function wp_comics_enqueue_frontend_scripts() {
     if (is_singular('comic') || is_post_type_archive('comic') || is_page() || is_home()) { 
         wp_enqueue_style('wp-comics-frontend-styles', plugins_url('css/frontend-styles.css', __FILE__), array(), '1.0.0');
@@ -55,6 +56,7 @@ function wp_comics_enqueue_frontend_scripts() {
 }
 add_action('wp_enqueue_scripts', 'wp_comics_enqueue_frontend_scripts');
 
+// Enqueue Scripts und Styles für Admin-Bereich
 function wp_comics_enqueue_admin_scripts($hook) {
     if ('post.php' === $hook || 'post-new.php' === $hook) {
         if ('comic' === get_post_type()) {
@@ -80,7 +82,7 @@ function wp_comics_verlage_admin_menu() {
 }
 add_action('admin_menu', 'wp_comics_verlage_admin_menu');
 
-// Untermenüpunkt für Serien
+// Untermenüpunkt für Serien unter "Comics" hinzufügen
 function wp_comics_add_series_submenu() {
     add_submenu_page(
         'edit.php?post_type=comic',  // Der Slug des Elternmenüpunkts (Comics)
@@ -94,7 +96,9 @@ function wp_comics_add_series_submenu() {
 add_action('admin_menu', 'wp_comics_add_series_submenu');
 
 
-// Menüpunkt für den Export und Import
+
+
+// Menüpunkt für den Export und Import hinzufügen
 function wp_comics_export_import_menu() {
     add_submenu_page(
         'edit.php?post_type=comic',
@@ -109,6 +113,7 @@ add_action('admin_menu', 'wp_comics_export_import_menu');
 
 // Registrierung benutzerdefinierter Beitragstypen und Taxonomien
 function wp_comics_register_post_types() {
+    // Comic Beitragstyp registrieren
     register_post_type('comic', array(
         'labels' => array(
             'name' => __('Comics'),
@@ -130,6 +135,7 @@ function wp_comics_register_post_types() {
         'show_in_rest' => true,
     ));
 
+    // Genre-Taxonomie für Comics registrieren
     register_taxonomy('genre', 'comic', array(
         'labels' => array(
             'name' => __('Genres'),
@@ -151,8 +157,27 @@ function wp_comics_register_post_types() {
         'query_var' => true,
         'rewrite' => array('slug' => 'genre'),
     ));
+
+    // Tags für den Comic-Post-Typ hinzufügen
+    register_taxonomy_for_object_type('post_tag', 'comic');
 }
 add_action('init', 'wp_comics_register_post_types');
+
+// Standardinhalt für Comic-Beiträge festlegen
+function wp_comics_set_default_content($content) {
+    global $post_type;
+
+    // Überprüfen, ob es sich um den Comic-Post-Typ handelt
+    if ($post_type == 'comic') {
+        // Shortcode für Comics automatisch hinzufügen
+        $content = '[wp_comics_metadata]';
+    }
+
+    return $content;
+}
+add_filter('default_content', 'wp_comics_set_default_content');
+
+
 
 // Admin Menüs
 function wp_comics_admin_menu() {
@@ -167,6 +192,7 @@ function wp_comics_admin_menu() {
 }
 add_action('admin_menu', 'wp_comics_admin_menu');
 
+// Spaltenüberschrift hinzufügen
 function wp_comics_add_custom_columns($columns) {
     $columns['comic_id'] = __('Comic ID');
     $columns['comic_shortcode'] = __('Shortcode');
@@ -174,6 +200,7 @@ function wp_comics_add_custom_columns($columns) {
 }
 add_filter('manage_comic_posts_columns', 'wp_comics_add_custom_columns');
 
+// Inhalt der Spalten füllen
 function wp_comics_custom_column_content($column, $post_id) {
     switch ($column) {
         case 'comic_id':
@@ -187,6 +214,7 @@ function wp_comics_custom_column_content($column, $post_id) {
 }
 add_action('manage_comic_posts_custom_column', 'wp_comics_custom_column_content', 10, 2);
 
+// Serien-Spalte zur Comic-Übersicht hinzufügen und direkt neben die Genres-Spalte setzen
 function wp_comics_add_series_column($columns) {
     $new_columns = array();
 
@@ -202,6 +230,7 @@ function wp_comics_add_series_column($columns) {
 add_filter('manage_comic_posts_columns', 'wp_comics_add_series_column');
 
 
+// Serien-Spalteninhalt füllen
 function wp_comics_series_column_content($column, $post_id) {
     if ($column == 'comic_series') {
         $series_id = get_post_meta($post_id, '_wp_comics_series', true);
@@ -209,7 +238,13 @@ function wp_comics_series_column_content($column, $post_id) {
             global $wpdb;
             $series_table = $wpdb->prefix . 'comic_series';
             $series = $wpdb->get_row($wpdb->prepare("SELECT name FROM $series_table WHERE id = %d", $series_id));
-            echo esc_html($series->name);
+
+            // Überprüfen, ob die Serie gefunden wurde
+            if ($series && !empty($series->name)) {
+                echo esc_html($series->name);
+            } else {
+                echo __('Serie nicht gefunden');
+            }
         } else {
             echo __('Keine Serie zugeordnet');
         }
@@ -218,7 +253,9 @@ function wp_comics_series_column_content($column, $post_id) {
 add_action('manage_comic_posts_custom_column', 'wp_comics_series_column_content', 10, 2);
 
 
-// Verlage-Spalte
+
+
+// Verlage-Spalte zur Comic-Übersicht hinzufügen und nach der Serien-Spalte platzieren
 function wp_comics_add_publisher_column($columns) {
     $new_columns = array();
 
@@ -234,6 +271,9 @@ function wp_comics_add_publisher_column($columns) {
 add_filter('manage_comic_posts_columns', 'wp_comics_add_publisher_column');
 
 
+
+
+// Verlage-Spalteninhalt füllen
 function wp_comics_publisher_column_content($column, $post_id) {
     if ($column == 'comic_publisher') {
         global $wpdb;
@@ -256,7 +296,7 @@ function wp_comics_publisher_column_content($column, $post_id) {
 
 add_action('manage_comic_posts_custom_column', 'wp_comics_publisher_column_content', 20, 2);
 
-// Filter-Dropdown für Serien und Genres
+// Filter-Dropdown für Serien und Genres in der Admin-Übersicht hinzufügen
 function wp_comics_genre_series_filter() {
     global $typenow, $wpdb;
 
@@ -314,15 +354,15 @@ function wp_comics_genre_series_filter() {
 }
 
 
-// Filter-Dropdown für Verlage
+// Filter-Dropdown für Verlage in der Admin-Übersicht hinzufügen
 function wp_comics_genre_series_publisher_filter() {
     global $typenow, $wpdb;
 
     if ($typenow == 'comic') {
-        // Serien- und Genre-Filter
+        // Serien- und Genre-Filter einfügen
         wp_comics_genre_series_filter();
 
-        // Verlage aus der Tabelle 'comics_verlage'
+        // Verlage aus der Tabelle 'comics_verlage' abrufen
         $verlage_table = $wpdb->prefix . 'comics_verlage';
         $publisher_names = $wpdb->get_col("SELECT name FROM $verlage_table");
 
@@ -337,7 +377,7 @@ function wp_comics_genre_series_publisher_filter() {
 
         if (!empty($publisher_names)) {
             foreach ($publisher_names as $publisher_name) {
-                if (!empty(trim($publisher_name))) {
+                if (!empty(trim($publisher_name))) { // Leere Verlage ausschließen
                     printf(
                         '<option value="%s"%s>%s</option>',
                         esc_attr($publisher_name),
@@ -384,5 +424,8 @@ function wp_comics_filter_by_genre_series_and_publisher($query) {
     }
 }
 add_action('pre_get_posts', 'wp_comics_filter_by_genre_series_and_publisher');
+
+
+
 
 ?>

@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('ABSPATH')) {exit;}
+
 // SHORTCODE
 function wp_comics_shortcode($atts) {
     // Standardwerte für Shortcode-Attribute
@@ -13,6 +15,7 @@ function wp_comics_shortcode($atts) {
         'publisher' => '',
         'format' => '',
         'series' => '',
+        'tag' => '',
         'columns' => 1, // Anzahl der Spalten
         'layout' => 'grid', // Layout-Option: grid oder list
         'paged' => get_query_var('paged', 1), // Holt den Wert von 'paged' aus der URL oder verwendet 1 als Standardwert
@@ -67,6 +70,15 @@ function wp_comics_shortcode($atts) {
             'key' => '_wp_comics_publisher',
             'value' => sanitize_text_field($atts['publisher']),
             'compare' => '='
+        );
+    }
+    
+    // Filterung nach Tags
+    if (!empty($atts['tag'])) {
+        $args['tax_query'][] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($atts['tag']),
         );
     }
 
@@ -142,7 +154,7 @@ function wp_comics_shortcode($atts) {
                 $meta_data[] = 'Ausgabenummer: ' . esc_html($issue_number);
             }
             if (in_array('publication_year', $display_options) && $publication_year) {
-                $meta_data[] = 'Erscheinungsjahr: ' . esc_html($publication_year);
+                $meta_data[] = 'Jahr: ' . esc_html($publication_year);
             }
             if (in_array('publisher', $display_options) && $publisher) {
                 $meta_data[] = 'Verlag: ' . esc_html($publisher);
@@ -167,7 +179,7 @@ function wp_comics_shortcode($atts) {
             if (isset($options['wp_comics_display_limited']) && $options['wp_comics_display_limited'] === 'yes' && $is_limited) {
                 $limited_number = get_post_meta(get_the_ID(), '_wp_comics_limited_number', true);
                 $limited_total = get_post_meta(get_the_ID(), '_wp_comics_limited_total', true);
-                $meta_data[] = '<span class="wp-comic-limited">Limitierung: Nr. ' . esc_html($limited_number) . ' von ' . esc_html($limited_total) . '</span>';
+                $meta_data[] = '<span class="wp-comic-limited">Limitiert: Nr. ' . esc_html($limited_number) . ' von ' . esc_html($limited_total) . '</span>';
             }
 
             $output .= implode(' | ', $meta_data);
@@ -182,10 +194,13 @@ function wp_comics_shortcode($atts) {
                 $output .= '</div>';
             }
 
-            // Check if description display is enabled
-            if (!empty($description) && isset($options['wp_comics_display_description']) && $options['wp_comics_display_description'] === 'yes') {
+            // Überprüfung, ob die Beschreibung in den Einstellungen aktiviert ist
+            $display_description = isset($options['wp_comics_display_description']) ? $options['wp_comics_display_description'] : 'yes';
+            
+            if (!empty($description) && $display_description === 'yes') {
                 $output .= '<div class="wp-comic-description">' . wp_kses_post($description) . '</div>';
             }
+
 
             $output .= '</div>'; // .wp-comic-body
             $output .= '</div>'; // .wp-comic-card
@@ -232,6 +247,7 @@ function wp_comics_compact_shortcode($atts) {
         'publisher' => '',
         'format' => '',
         'series' => '',
+        'tag' => '',
     ), $atts, 'wp_comics_compact');
 
     $args = array(
@@ -284,6 +300,15 @@ function wp_comics_compact_shortcode($atts) {
             'compare' => '='
         );
     }
+    
+    // Filterung nach Tags
+    if (!empty($atts['tag'])) {
+        $args['tax_query'][] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($atts['tag']),
+        );
+    }
 
     $query = new WP_Query($args);
 
@@ -325,6 +350,7 @@ add_shortcode('wp_comics_compact', 'wp_comics_compact_shortcode');
 
 // Shortcode für Comic-Tabelle
 function wp_comics_table_shortcode($atts) {
+    // Standardattribute definieren
     $atts = shortcode_atts(array(
         'number' => 200,
         'orderby' => 'title',
@@ -333,7 +359,14 @@ function wp_comics_table_shortcode($atts) {
         'year' => '',
         'publisher' => '',
         'series' => '',
+        'tag' => '',
     ), $atts, 'wp_comics_table');
+
+    // Abrufen der gespeicherten Optionen für sichtbare Spalten
+    $options = get_option('wp_comics_options');
+    $visible_columns = isset($options['wp_comics_visible_columns']) ? $options['wp_comics_visible_columns'] : array(
+        'title', 'publisher', 'series', 'year', 'format', 'pages', 'is_limited'
+    );
 
     $args = array(
         'post_type' => 'comic',
@@ -377,19 +410,46 @@ function wp_comics_table_shortcode($atts) {
             'compare' => '='
         );
     }
+    
+    // Filterung nach Tags
+    if (!empty($atts['tag'])) {
+        $args['tax_query'][] = array(
+            'taxonomy' => 'post_tag',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($atts['tag']),
+        );
+    }
 
     $query = new WP_Query($args);
 
+    // Tabellenstruktur aufbauen
     $output = '<table class="wp-comics-table" style="width:100%; border-collapse:collapse; margin-bottom:20px;">';
     $output .= '<thead>';
     $output .= '<tr>';
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Titel</th>';
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Verlag</th>';
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Serie</th>'; // Neue Spalte für Serie
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Erscheinungsjahr</th>';
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Format</th>';
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Seitenanzahl</th>';
-    $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Limitierung</th>';
+    
+    // Dynamisches Hinzufügen von Spalten basierend auf den sichtbaren Spalten
+    if (in_array('title', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Titel</th>';
+    }
+    if (in_array('publisher', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Verlag</th>';
+    }
+    if (in_array('series', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Serie</th>';
+    }
+    if (in_array('year', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Jahr</th>';
+    }
+    if (in_array('format', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Format</th>';
+    }
+    if (in_array('pages', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Seitenanzahl</th>';
+    }
+    if (in_array('is_limited', $visible_columns)) {
+        $output .= '<th style="border: 1px solid #ccc; padding: 8px;">Limitiert</th>';
+    }
+    
     $output .= '</tr>';
     $output .= '</thead>';
     $output .= '<tbody>';
@@ -403,7 +463,7 @@ function wp_comics_table_shortcode($atts) {
             $series_id = get_post_meta(get_the_ID(), '_wp_comics_series', true);
             $year = get_post_meta(get_the_ID(), '_wp_comics_publication_year', true);
             $format = get_post_meta(get_the_ID(), '_wp_comics_format', true);
-            $pages = get_post_meta(get_the_ID(), '_wp_comics_page_count', true); // Seitenanzahl richtig abrufen
+            $pages = get_post_meta(get_the_ID(), '_wp_comics_page_count', true);
             $is_limited = get_post_meta(get_the_ID(), '_wp_comics_is_limited', true) ? 'Ja' : 'Nein';
 
             // Serienname aus der Serien-ID abrufen
@@ -415,13 +475,27 @@ function wp_comics_table_shortcode($atts) {
             }
 
             $output .= '<tr>';
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;"><a href="' . esc_url($permalink) . '" style="text-decoration:none; color:inherit;">' . esc_html($title) . '</a></td>';
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($publisher) . '</td>';
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($series_name) . '</td>'; // Serie anzeigen
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($year) . '</td>';
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($format) . '</td>';
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($pages) . '</td>'; // Seitenanzahl anzeigen
-            $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($is_limited) . '</td>';
+            if (in_array('title', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;"><a href="' . esc_url($permalink) . '" style="text-decoration:none; color:inherit;">' . esc_html($title) . '</a></td>';
+            }
+            if (in_array('publisher', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($publisher) . '</td>';
+            }
+            if (in_array('series', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($series_name) . '</td>';
+            }
+            if (in_array('year', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($year) . '</td>';
+            }
+            if (in_array('format', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($format) . '</td>';
+            }
+            if (in_array('pages', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($pages) . '</td>';
+            }
+            if (in_array('is_limited', $visible_columns)) {
+                $output .= '<td style="border: 1px solid #ccc; padding: 8px;">' . esc_html($is_limited) . '</td>';
+            }
             $output .= '</tr>';
         }
     } else {
@@ -436,3 +510,122 @@ function wp_comics_table_shortcode($atts) {
     return $output;
 }
 add_shortcode('wp_comics_table', 'wp_comics_table_shortcode');
+
+
+// Shortcode für QR-Code im Frontend
+function wp_comics_qr_code_shortcode($atts) {
+    // Attribute des Shortcodes verarbeiten (falls nötig)
+    $atts = shortcode_atts(array(
+        'id' => null, // Comic-ID als optionales Attribut
+    ), $atts, 'comic_qr_code');
+
+    // Wenn keine ID angegeben ist, die aktuelle Post-ID nutzen
+    $comic_id = $atts['id'] ? $atts['id'] : get_the_ID();
+
+    // Prüfen, ob wir uns auf einem Comic-Post befinden
+    if (get_post_type($comic_id) !== 'comic') {
+        return '';
+    }
+
+    // QR-Code generieren
+    $qr_code_url = wp_comics_generate_qr_code($comic_id);
+
+    // HTML-Code für die Ausgabe des QR-Codes
+    return '<div class="comic-qr-code">
+        <img src="' . esc_url($qr_code_url) . '" alt="QR-Code" />
+    </div>';
+}
+
+// Den Shortcode registrieren
+add_shortcode('wp_comics_qrcode', 'wp_comics_qr_code_shortcode');
+
+
+
+// Shortcode für die Anzeige der Comic-Metadaten, inklusive der Beschreibung
+function wp_comics_metadata_shortcode() {
+    global $post;
+
+    // Hole die benötigten Meta-Daten
+    $title = get_the_title($post->ID);
+    $series = get_post_meta($post->ID, '_wp_comics_series', true);
+    $publisher = get_post_meta($post->ID, '_wp_comics_publisher', true);
+    $publication_year = get_post_meta($post->ID, '_wp_comics_publication_year', true);
+    $issue_number = get_post_meta($post->ID, '_wp_comics_issue_number', true);
+    $cover_image = get_post_meta($post->ID, '_wp_comics_cover_image', true);
+    $description = get_post_meta($post->ID, '_wp_comics_description', true); // Beschreibung hinzufügen
+    $price = get_post_meta($post->ID, '_wp_comics_price', true);
+    $authors = get_post_meta($post->ID, '_wp_comics_authors', true);
+    $page_count = get_post_meta($post->ID, '_wp_comics_page_count', true);
+    $condition = get_post_meta($post->ID, '_wp_comics_condition', true);
+    $format = get_post_meta($post->ID, '_wp_comics_format', true);
+    $is_limited = get_post_meta($post->ID, '_wp_comics_is_limited', true);
+    $limited_number = get_post_meta($post->ID, '_wp_comics_limited_number', true);
+    $limited_total = get_post_meta($post->ID, '_wp_comics_limited_total', true);
+
+    // Seriennamen anhand der Serien-ID abrufen, falls eine Serien-ID vorhanden ist
+    if ($series) {
+        global $wpdb;
+        $series_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM {$wpdb->prefix}comic_series WHERE id = %d", $series));
+    } else {
+        $series_name = 'Keine Serie zugeordnet';
+    }
+
+    // Erzeuge die HTML-Ausgabe der Metadaten
+    $comic_metadata = '<div class="comic-metadata">';
+    
+    if ($cover_image) {
+        $comic_metadata .= '<div class="comic-cover"><img src="' . esc_url($cover_image) . '" alt="' . esc_attr($title) . '"></div>';
+    }
+    
+    $comic_metadata .= '<h2>' . esc_html($title) . '</h2>';
+    
+    // Ausgabe des Seriennamens statt der Serien-ID
+    if ($series_name) {
+        $comic_metadata .= '<p><span>Serie:</span> ' . esc_html($series_name) . '</p>';
+    }
+    
+    if ($issue_number) {
+        $comic_metadata .= '<p><span>Ausgabe:</span> ' . esc_html($issue_number) . '</p>';
+    }
+    
+    if ($publisher) {
+        $comic_metadata .= '<p><span>Verlag:</span> ' . esc_html($publisher) . '</p>';
+    }
+    
+    if ($publication_year) {
+        $comic_metadata .= '<p><span>Jahr:</span> ' . esc_html($publication_year) . '</p>';
+    }
+    
+    if (!empty($price)) {
+        $comic_metadata .= '<p><span>Preis:</span> ' . esc_html($price) . ' EUR</p>';
+    }
+    
+    if (!empty($authors)) {
+        $comic_metadata .= '<p><span>Autoren:</span> ' . esc_html($authors) . '</p>';
+    }
+    
+    if (!empty($page_count)) {
+        $comic_metadata .= '<p><span>Seitenzahl:</span> ' . esc_html($page_count) . '</p>';
+    }
+    
+    if (!empty($condition)) {
+        $comic_metadata .= '<p><span>Zustand:</span> ' . esc_html($condition) . '</p>';
+    }
+    
+    if (!empty($format)) {
+        $comic_metadata .= '<p><span>Format:</span> ' . esc_html($format) . '</p>';
+    }
+    
+    if (!empty($is_limited)) {
+        $comic_metadata .= '<p><span>Limitiert:</span> Nr. ' . esc_html($limited_number) . ' von ' . esc_html($limited_total) . '</p>';
+    }
+    
+    if (!empty($description)) {
+        $comic_metadata .= '<div class="comic-description"><p>' . wp_kses_post($description) . '</p></div>';
+    }
+    
+    $comic_metadata .= '</div>';
+
+    return $comic_metadata;
+}
+add_shortcode('wp_comics_metadata', 'wp_comics_metadata_shortcode');
